@@ -1,0 +1,208 @@
+{% extends "base.html" %}
+{% block title %}Manage Courses - SkillZONE{% endblock %}
+
+{% block content %}
+
+
+<h2 class="section-title mb-4">Manage Courses</h2>
+
+<!-- Create Course Modal  -->
+<div class="card-panel mb-5">
+  <h3 class="mb-4">Create New Course</h3>
+
+  <form method="POST" action="{{ url_for('manage_courses') }}">
+
+    <div class="row">
+      <div class="col-md-6 mb-3">
+        <label>Title</label>
+        <input class="form-control" name="title" placeholder="Course title" required>
+      </div>
+
+      <div class="col-md-6 mb-3">
+        <label>Description</label>
+        <input class="form-control" name="description" placeholder="Short description" required>
+      </div>
+    </div>
+
+    <div class="row">
+      <div class="col-md-3 mb-3">
+        <label>Duration (minutes)</label>
+        <input type="number" class="form-control" name="duration" placeholder="120" required>
+      </div>
+
+      <div class="col-md-3 mb-3">
+        <label>Capacity</label>
+        <input type="number" class="form-control" name="capacity" placeholder="20" required>
+      </div>
+
+      <div class="col-md-3 mb-3">
+        <label>Level</label>
+        <input class="form-control" name="level"
+              placeholder="Beginner / Intermediate / Advanced">
+      </div>
+
+      <div class="col-md-3 mb-3">
+        <label>Department</label>
+        <input class="form-control" name="department" value="{{ employee.department }}" readonly>
+      </div>
+    </div>
+
+    <div class="row">
+      <div class="col-md-4 mb-3">
+        <label>Start Date</label>
+        <input type="date" class="form-control" name="start_date">
+      </div>
+
+      <div class="col-md-4 mb-3">
+        <label>End Date</label>
+        <input type="date" class="form-control" name="end_date">
+      </div>
+
+      <div class="col-md-4 mb-3">
+        <label>YouTube Video URL</label>
+        <input type="text" name="youtube_url" class="form-control"
+              placeholder="https://youtube.com/watch?v=xxxxx">
+      </div>
+    </div>
+
+    <div class="text-end mt-3">
+      <button class="btn btn-success">Create Course</button>
+    </div>
+  </form>
+</div>
+
+<!-- Existing Course Panel  -->
+<div class="card-panel">
+  <h3 class="mb-4">Existing Courses</h3>
+
+  {% if courses %}
+    <ul class="list-group">
+
+      {% for c in courses %}
+      <li class="list-group-item">
+
+        <!-- Course Header Row -->
+        <div class="d-flex justify-content-between align-items-center mb-2">
+
+          <div>
+            <strong>{{ c.title }}</strong><br>
+
+            <small class="text-info fw-bold">
+              Department: {{ c.department }}
+            </small><br>
+
+            <small class="text-muted">
+              {{ c.description }} |
+              Level: {{ c.level }} |
+              Duration: {{ c.duration_minutes }} mins |
+              Capacity: {{ c.capacity }} |
+              YouTube: {{ c.youtube_url }}
+            </small><br>
+
+            <small class="text-muted">
+              {{ c.start_date }} → {{ c.end_date }}
+            </small>
+          </div>
+
+          <div>
+
+            <!-- EDIT button  -->
+            <button class="btn btn-outline-secondary btn-sm"
+                    data-bs-toggle="collapse"
+                    data-bs-target="#edit{{ c.id }}">
+              Edit
+            </button>
+
+            <!-- DELETE button -->
+            <form method="POST"
+                  action="{{ url_for('delete_course', course_id=c.id) }}"
+                  class="d-inline">
+              <button class="btn btn-sm"
+                      style="background:black; color:#ff4c4c; border-radius: 10px; border:1px solid #ff4c4c;"
+                      onclick="return confirm('Delete this course?');">
+                Delete
+              </button>
+            </form>
+          </div>
+
+        </div>
+
+        <!-- Collapsible Edit Form  -->
+        <div id="edit{{ c.id }}" class="collapse mt-3">
+        <form method="POST"
+              action="{{ url_for('edit_course', course_id=c.id) }}"
+              class="card-panel">
+
+          <div class="row">
+            <div class="col-md-6 mb-3">
+              <label>Title</label>
+              <input class="form-control" name="title" value="{{ c.title }}" required>
+            </div>
+
+            <div class="col-md-6 mb-3">
+              <label>Description</label>
+              <input class="form-control" name="description" value="{{ c.description }}" required>
+            </div>
+          </div>
+
+          <div class="row">
+            <div class="col-md-3 mb-3">
+              <label>Duration (minutes)</label>
+              <input class="form-control" type="number" name="duration"
+                    value="{{ c.duration_minutes }}" required>
+            </div>
+
+            <div class="col-md-3 mb-3">
+              <label>Capacity</label>
+              <input class="form-control" type="number" name="capacity"
+                    value="{{ c.capacity }}" required>
+            </div>
+
+            <div class="col-md-3 mb-3">
+              <label>Level</label>
+              <input class="form-control" name="level" value="{{ c.level }}">
+            </div>
+
+            <div class="col-md-3 mb-3">
+              <label>Department</label>
+              <input class="form-control" name="department" value="{{ c.department }}" required>
+            </div>
+          </div>
+
+          <div class="row">
+            <div class="col-md-4 mb-3">
+              <label>Start Date</label>
+              <input type="date" class="form-control" name="start_date"
+                    value="{{ c.start_date }}">
+            </div>
+
+            <div class="col-md-4 mb-3">
+              <label>End Date</label>
+              <input type="date" class="form-control" name="end_date"
+                    value="{{ c.end_date }}">
+            </div>
+
+            <div class="col-md-4 mb-3">
+              <label>YouTube URL</label>
+              <input type="text" class="form-control" name="youtube_url"
+                    value="{{ c.youtube_url }}">
+            </div>
+          </div>
+
+          <div class="text-end">
+            <button class="btn btn-primary btn-sm">Save Changes</button>
+          </div>
+
+        </form>
+      </div>
+
+      </li>
+      {% endfor %}
+    </ul>
+
+  {% else %}
+    <p class="text-muted">No courses available.</p>
+  {% endif %}
+</div>
+
+{% endblock %}

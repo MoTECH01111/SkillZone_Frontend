@@ -1,0 +1,135 @@
+{% extends "base.html" %}
+{% block title %}Take Course - SkillZONE{% endblock %}
+
+{% block content %}
+
+<h2 class="section-title mb-4">{{ course.title }}</h2>
+
+<div class="card-panel mb-4">
+    <h4 class="mb-3">Course Progress</h4>
+
+    <div class="progress" style="height: 18px;">
+        <div id="progressBar"
+             class="progress-bar bg-success"
+             data-progress="{{ enrollment.progress if enrollment else 0 }}">
+            {{ enrollment.progress if enrollment else 0 }}%
+        </div>
+    </div>
+
+    <p class="mt-3 text-muted">{{ course.description }}</p>
+</div>
+
+
+<div class="card-panel">
+    <h4 class="mb-3">Training Video</h4>
+
+    <div class="ratio ratio-16x9">
+        {% if embed_url %}
+            <div id="player"></div>
+        {% else %}
+            <p class="text-danger">Invalid YouTube URL</p>
+        {% endif %}
+    </div>
+
+    <form method="POST" action="/mark-completed/{{ course.id }}">
+        <button id="completeBtn"
+                class="btn btn-success w-100 mt-3 complete-btn"
+                disabled>
+            Mark as Completed ✔
+        </button>
+    </form>
+</div>
+
+<a href="{{ url_for('dashboard') }}" class="btn btn-outline-secondary mt-4">
+    Back to Dashboard
+</a>
+
+<script>
+// Load YouTube API
+var tag = document.createElement('script');
+tag.src = "https://www.youtube.com/iframe_api";
+document.head.appendChild(tag);
+
+let player;
+let progressBar;
+let completeBtn;
+
+let lastSavedProgress = 0;
+
+// Send watched progress to backend
+function sendProgressToBackend(percent) {
+    fetch("/update-progress/{{ course.id }}", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ progress: percent })
+    });
+}
+
+// This function runs After DOM and progressBar exist
+function onYouTubeIframeAPIReady() {
+    progressBar = document.getElementById("progressBar");
+    completeBtn = document.getElementById("completeBtn");
+
+    // Reads the saved progress
+    let initialProgress = parseInt(progressBar.dataset.progress);
+    if (isNaN(initialProgress)) initialProgress = 0;
+
+
+    console.log("Loaded saved progress:", initialProgress);
+
+    // Fill UI immediately with saved progress
+    progressBar.style.width = initialProgress + "%";
+    progressBar.innerText = initialProgress + "%";
+    lastSavedProgress = initialProgress;
+
+    if (initialProgress >= 100) {
+        enableCompleteBtn();
+    }
+
+    player = new YT.Player('player', {
+        videoId: "{{ embed_url }}",
+        events: {
+            'onReady': updateProgress,
+            'onStateChange': onPlayerStateChange
+        }
+    });
+}
+
+function updateProgress() {
+    if (player && player.getDuration) {
+        let duration = player.getDuration();
+        let current = player.getCurrentTime();
+        let percent = Math.floor((current / duration) * 100);
+
+        // Don't overwrite saved progress unless the progress is higher
+        if (percent >= lastSavedProgress) {
+            progressBar.style.width = percent + "%";
+            progressBar.innerText = percent + "%";
+        }
+
+        if (percent >= lastSavedProgress + 5 && percent < 100) {
+            lastSavedProgress = percent;
+            sendProgressToBackend(percent);
+        }
+
+        if (percent >= 100) enableCompleteBtn();
+    }
+
+    requestAnimationFrame(updateProgress);
+}
+
+function onPlayerStateChange(event) {
+    if (event.data === YT.PlayerState.ENDED) {
+        progressBar.style.width = "100%";
+        progressBar.innerText = "100%";
+        sendProgressToBackend(100);
+        enableCompleteBtn();
+    }
+}
+
+function enableCompleteBtn() {
+    completeBtn.disabled = false;
+    completeBtn.classList.add("enabled");
+}
+</script>
+{% endblock %}

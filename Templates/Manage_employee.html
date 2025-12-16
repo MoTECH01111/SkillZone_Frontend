@@ -1,0 +1,362 @@
+{% extends "base.html" %}
+
+{% block content %}
+
+<style>
+    /* Table styling to match theme */
+    .employee-table {
+        width: 100%;
+        border-collapse: collapse;
+        background: #000;
+        color: white;
+        border-radius: 12px;
+        overflow: hidden;
+    }
+
+    .employee-table thead {
+        background: #111;
+        font-weight: bold;
+    }
+
+    .employee-table th, 
+    .employee-table td {
+        padding: 14px 12px;
+        border-bottom: 1px solid #222;
+    }
+
+    .employee-table tr:nth-child(even) {
+        background: #0d0d0d;
+    }
+
+    .employee-table tr:hover {
+        background: #1a1a1a;
+        transition: 0.2s;
+    }
+
+    /* Themed buttons */
+    .btn-theme {
+        background: #000;
+        border: 1px solid #fff;
+        color: #fff;
+        border-radius: 10px;
+        padding: 8px 14px;
+        font-weight: 600;
+    }
+
+    .btn-theme:hover {
+        background: #fff;
+        color: #000;
+    }
+
+    .btn-danger-theme {
+        background: #000;
+        border: 1px solid #ff4d4d;
+        color: #ff4d4d;
+        border-radius: 10px;
+        padding: 8px 14px;
+        font-weight: 600;
+    }
+
+    .btn-danger-theme:hover {
+        background: #ff4d4d;
+        color: #000;
+    }
+
+    .btn-info-theme {
+        background: #000;
+        border: 1px solid #00eaff;
+        color: #00eaff;
+        border-radius: 10px;
+        padding: 8px 14px;
+        font-weight: 600;
+    }
+
+    .btn-info-theme:hover {
+        background: #00eaff;
+        color: #000;
+    }
+
+    .table-header {
+        background: #111;
+        padding: 16px;
+        border-radius: 10px 10px 0 0;
+        font-size: 1.4rem;
+        font-weight: 700;
+        color: white;
+        border: 1px solid #333;
+        margin-top: 20px;
+    }
+
+    .table-wrapper {
+        border: 1px solid #ffffff;
+        border-radius: 0 0 12px 12px;
+        overflow: hidden;
+        box-shadow: 0 0 18px rgba(255,255,255,0.08);
+    }
+</style>
+
+
+<div class="container py-5">
+
+    <h1 class="mb-4 section-title">Manage Employees</h1>
+
+    <a href="{{ url_for('admin_dashboard') }}" class="btn-theme mb-3">
+        ← Back to Admin Dashboard
+    </a>
+
+    <!-- Create Employee Button -->
+    <button class="btn-theme mb-4" data-bs-toggle="modal" data-bs-target="#createEmployeeModal">
+        + Create Employee
+    </button>
+
+    <!-- Employee Table -->
+    <div class="table-header">All Employees</div>
+
+    <div class="table-wrapper">
+        <table class="employee-table">
+            <thead>
+                <tr>
+                    <th>ID</th>
+                    <th>Name</th>
+                    <th>Email</th>
+                    <th>Position</th>
+                    <th>Department</th>
+                    <th>Enrollments</th>
+                    <th>Actions</th>
+                </tr>
+            </thead>
+
+            <tbody>
+                {% for emp in employees %}
+                <tr>
+                    <td>{{ emp.id }}</td>
+                    <td>{{ emp.first_name }} {{ emp.last_name }}</td>
+                    <td>{{ emp.email }}</td>
+                    <td>{{ emp.position }}</td>
+                    <td>{{ emp.department }}</td>
+
+                    <!-- View Enrollments Button -->
+                    <td>
+                        <button class="btn-info-theme"
+                                data-bs-toggle="modal"
+                                data-bs-target="#viewEnrollmentsModal{{ emp.id }}">
+                            View
+                        </button>
+                    </td>
+
+                    <td>
+                        <!-- Edit Button -->
+                        <button class="btn-info-theme mb-1"
+                                data-bs-toggle="modal"
+                                data-bs-target="#editEmployeeModal{{ emp.id }}">
+                            Edit
+                        </button>
+
+                        <!-- Delete Employee -->
+                        <form method="POST" action="/employee/delete/{{ emp.id }}" style="display:inline;">
+                            <button class="btn-danger-theme"
+                                    onclick="return confirm('Delete employee?');">
+                                Delete
+                            </button>
+                        </form>
+                    </td>
+                </tr>
+
+                <!-- Enrollments Modal -->
+                <div class="modal fade" id="viewEnrollmentsModal{{ emp.id }}" tabindex="-1">
+                    <div class="modal-dialog modal-lg">
+                        <div class="modal-content card-panel">
+
+                            <div class="modal-header">
+                                <h5 class="modal-title">Enrollments for {{ emp.first_name }}</h5>
+                                <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal"></button>
+                            </div>
+
+                            <div class="modal-body">
+                                {% set emp_enrollments = enrollments | selectattr("employee.id", "equalto", emp.id) | list %}
+
+                                {% if emp_enrollments %}
+                                <ul class="list-group">
+                                    {% for e in emp_enrollments %}
+                                        <li class="list-group-item">
+                                            <strong>{{ e.course.title }}</strong><br>
+                                            Status: {{ e.status }}
+                                        </li>
+                                    {% endfor %}
+                                </ul>
+                                {% else %}
+                                <p class="text-muted">No enrollments for this employee.</p>
+                                {% endif %}
+                            </div>
+
+                            <div class="modal-footer">
+                                <button class="btn-theme" data-bs-dismiss="modal">Close</button>
+                            </div>
+
+                        </div>
+                    </div>
+                </div>
+
+
+                <!-- Edit Employee Modal -->
+                <div class="modal fade" id="editEmployeeModal{{ emp.id }}" tabindex="-1">
+                    <div class="modal-dialog">
+                        <div class="modal-content card-panel">
+
+                            <form method="POST" action="/edit-employee/{{ emp.id }}">
+
+                                <div class="modal-header">
+                                    <h5 class="modal-title">
+                                        Edit Employee: {{ emp.first_name }} {{ emp.last_name }}
+                                    </h5>
+                                    <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal"></button>
+                                </div>
+
+                                <div class="modal-body">
+
+                                    <div class="mb-3">
+                                        <label>First Name</label>
+                                        <input type="text" name="first_name"
+                                               value="{{ emp.first_name }}" class="form-control">
+                                    </div>
+
+                                    <div class="mb-3">
+                                        <label>Last Name</label>
+                                        <input type="text" name="last_name"
+                                               value="{{ emp.last_name }}" class="form-control">
+                                    </div>
+
+                                    <div class="mb-3">
+                                        <label>Email</label>
+                                        <input type="email" name="email"
+                                               value="{{ emp.email }}" class="form-control">
+                                    </div>
+
+                                    <div class="mb-3">
+                                        <label>Position</label>
+                                        <input type="text" name="position"
+                                               value="{{ emp.position }}" class="form-control">
+                                    </div>
+
+                                    <div class="mb-3">
+                                        <label>Department</label>
+                                        <input type="text" name="department"
+                                               value="{{ emp.department }}" class="form-control">
+                                    </div>
+
+                                    <div class="mb-3">
+                                        <label>Phone</label>
+                                        <input type="text" name="phone"
+                                               value="{{ emp.phone }}" class="form-control">
+                                    </div>
+
+                                    <div class="mb-3">
+                                        <label>Hire Date</label>
+                                        <input type="date" name="hire_date"
+                                               value="{{ emp.hire_date }}" class="form-control">
+                                    </div>
+
+                                    <div class="mb-3">
+                                        <label>Gender</label>
+                                        <select name="gender" class="form-control">
+                                            <option {% if emp.gender=='Male' %}selected{% endif %}>Male</option>
+                                            <option {% if emp.gender=='Female' %}selected{% endif %}>Female</option>
+                                            <option {% if emp.gender=='Other' %}selected{% endif %}>Other</option>
+                                        </select>
+                                    </div>
+
+                                </div>
+
+                                <div class="modal-footer">
+                                    <button class="btn-theme" type="submit">Save Changes</button>
+                                    <button class="btn-outline-secondary" type="button" data-bs-dismiss="modal">
+                                        Cancel
+                                    </button>
+                                </div>
+
+                            </form>
+
+                        </div>
+                    </div>
+                </div>
+
+
+                {% endfor %}
+            </tbody>
+        </table>
+    </div>
+</div>
+
+<!-- Create Employee Modal -->
+<div class="modal fade" id="createEmployeeModal" tabindex="-1">
+    <div class="modal-dialog">
+        <div class="modal-content card-panel">
+
+            <form method="POST" action="/admin/create-employee">
+                <div class="modal-header">
+                    <h5 class="modal-title">Create New Employee</h5>
+                    <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal"></button>
+                </div>
+
+                <div class="modal-body">
+
+                    <div class="mb-3">
+                        <label>First Name</label>
+                        <input type="text" name="first_name" class="form-control" required>
+                    </div>
+
+                    <div class="mb-3">
+                        <label>Last Name</label>
+                        <input type="text" name="last_name" class="form-control" required>
+                    </div>
+
+                    <div class="mb-3">
+                        <label>Email</label>
+                        <input type="email" name="email" class="form-control" required>
+                    </div>
+
+                    <div class="mb-3">
+                        <label>Position</label>
+                        <input type="text" name="position" class="form-control">
+                    </div>
+
+                    <div class="mb-3">
+                        <label>Department</label>
+                        <input type="text" name="department" class="form-control">
+                    </div>
+
+                    <div class="mb-3">
+                        <label>Phone</label>
+                        <input type="text" name="phone" class="form-control">
+                    </div>
+
+                    <div class="mb-3">
+                        <label>Hire Date</label>
+                        <input type="date" name="hire_date" class="form-control" required>
+                    </div>
+
+                    <div class="mb-3">
+                        <label>Gender</label>
+                        <select name="gender" class="form-control">
+                            <option>Male</option>
+                            <option>Female</option>
+                            <option>Other</option>
+                        </select>
+                    </div>
+
+                </div>
+
+                <div class="modal-footer">
+                    <button class="btn-theme" type="submit">Create</button>
+                    <button class="btn-outline-secondary" type="button" data-bs-dismiss="modal">
+                        Cancel
+                    </button>
+                </div>
+
+            </form>
+
+        </div>
+    </div>
+</div>
+
+{% endblock %}

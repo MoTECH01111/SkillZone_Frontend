@@ -1,0 +1,118 @@
+{% extends "base.html" %}
+{% block title %}Dashboard - SkillZONE{% endblock %}
+
+{% block content %}
+
+<style>
+/*  PDF */
+.modal-dialog {
+    max-width: 90% !important;
+}
+
+.modal-body {
+    height: 85vh !important;
+    overflow: hidden !important;
+    padding: 0 !important;
+}
+
+.modal-body iframe {
+    width: 100% !important;
+    height: 100% !important;
+    border: none !important;
+}
+</style>
+
+<div class="d-flex justify-content-between align-items-center mb-4">
+  <h2 class="section-title">Welcome, {{ employee.first_name }}</h2>
+</div>
+
+<div class="row">
+  <div class="col-lg-8">
+
+    <!-- Courses-->
+    <div class="card-panel mb-4">
+      <h4>Your Courses</h4>
+
+      {% if my_courses %}
+        <ul class="list-group mt-3">
+          {% for c in my_courses %}
+            <li class="list-group-item d-flex justify-content-between align-items-center">
+
+              <div>
+                <strong>{{ c.title }}</strong><br>
+                <small class="text-muted">{{ c.description }}</small>
+              </div>
+
+              <div class="d-flex flex-column gap-2">
+                <a href="{{ url_for('take_course', course_id=c.id) }}"
+                   class="btn btn-primary btn-sm mb-1 w-100">
+                  Take Course
+                </a>
+
+                <a href="{{ url_for('courses') }}"
+                   class="btn btn-outline-secondary btn-sm w-100">
+                  View Courses
+                </a>
+              </div>
+
+            </li>
+          {% endfor %}
+        </ul>
+      {% else %}
+        <p class="text-muted mt-2">You are not enrolled in any courses yet.</p>
+        <a href="{{ url_for('courses') }}" class="btn btn-success mt-2">Browse Courses</a>
+      {% endif %}
+    </div>
+
+    <!-- Certificates  -->
+    <div class="card-panel mb-4">
+      <h4>Certificates</h4>
+
+      {% if certificates %}
+        <ul class="list-group mt-3">
+
+          {% for cert in certificates %}
+          <li class="list-group-item d-flex justify-content-between align-items-center">
+
+            <div>
+              <strong>{{ cert.course.title }}</strong><br>
+              <small class="text-muted">Issued: {{ cert.issued_on }}</small>
+            </div>
+
+            <!--Open pdf in tab -->
+            <a href="{{ cert.document_url }}"
+               target="_blank"
+               class="btn btn-success btn-sm">
+              Open Certificate
+            </a>
+
+          </li>
+
+          {% endfor %}
+
+        </ul>
+
+      {% else %}
+        <p class="text-muted mt-2">You do not have any certificates yet.</p>
+      {% endif %}
+    </div>
+
+  </div>
+
+  <!-- Right sidebar -->
+  <div class="col-lg-4">
+    <div class="card-panel mb-3">
+      <h5>Profile</h5>
+      <p><strong>{{ employee.first_name }} {{ employee.last_name }}</strong></p>
+      <p>{{ employee.email }}</p>
+      <p><strong>Position:</strong> {{ employee.position or '—' }}</p>
+
+      <a href="{{ url_for('employee_profile') }}" class="btn btn-success mt-2">
+        Edit My Profile
+      </a>
+    </div>
+  </div>
+
+</div>
+
+{% endblock %}

@@ -1,0 +1,233 @@
+{% extends "base.html" %}
+{% block title %}Certificates - SkillZONE{% endblock %}
+
+{% block content %}
+
+<style>
+    .btn-theme {
+        background: #000;
+        border: 1px solid #fff;
+        color: #fff;
+        border-radius: 10px;
+        padding: 6px 12px;
+        font-weight: 600;
+    }
+    .btn-theme:hover { background: #fff; color: #000; }
+
+    .btn-danger-theme {
+        background: #000;
+        border: 1px solid #ff4d4d;
+        color: #ff4d4d;
+        border-radius: 10px;
+        padding: 6px 12px;
+        font-weight: 600;
+    }
+    .btn-danger-theme:hover { background: #ff4d4d; color: #000; }
+
+    .btn-info-theme {
+        background: #000;
+        border: 1px solid #00eaff;
+        color: #00eaff;
+        border-radius: 10px;
+        padding: 6px 12px;
+        font-weight: 600;
+    }
+    .btn-info-theme:hover { background: #00eaff; color: #000; }
+
+    .table-dark-theme {
+        width: 100%;
+        border-collapse: collapse;
+        background: #000;
+        color: white;
+        border-radius: 12px;
+        overflow: hidden;
+    }
+    .table-dark-theme th {
+        background: #111;
+    }
+    .table-dark-theme th, 
+    .table-dark-theme td {
+        padding: 14px 12px;
+        border-bottom: 1px solid #222;
+    }
+    .table-dark-theme tr:hover {
+        background: #1a1a1a;
+    }
+</style>
+
+
+<div class="container py-5">
+
+    <h2 class="section-title mb-4">Create Certificate</h2>
+    <a href="{{ url_for('admin_dashboard') }}" class="btn-theme">← Back to Admin Dashboard</a>
+
+    <br><br>
+
+    <!-- Create Certificate form -->
+    <div class="card-panel p-4 mb-5">
+
+        <form method="POST" enctype="multipart/form-data" action="{{ url_for('create_certificate') }}">
+
+            <!-- Select Course -->
+            <div class="mb-3">
+                <label class="form-label">Select Course</label>
+                <select name="course_id" class="form-control" required>
+                    {% for c in courses %}
+                        <option value="{{ c.id }}">{{ c.title }}</option>
+                    {% endfor %}
+                </select>
+            </div>
+
+            <!-- Certificate Name -->
+            <div class="mb-3">
+                <label class="form-label">Certificate Name</label>
+                <input type="text" name="name" class="form-control" required>
+            </div>
+
+            <!-- Certificate Description -->
+            <div class="mb-3">
+                <label class="form-label">Description</label>
+                <textarea name="description" class="form-control" rows="3"></textarea>
+            </div>
+
+            <!-- Issued On -->
+            <div class="mb-3">
+                <label class="form-label">Issued On</label>
+                <input type="date" name="issued_on" class="form-control" required>
+            </div>
+
+            <!-- Expiry -->
+            <div class="mb-3">
+                <label class="form-label">Expiry Date</label>
+                <input type="date" name="expiry_date" class="form-control">
+            </div>
+
+            <!-- Logo Upload -->
+            <div class="mb-3">
+                <label class="form-label">Upload Logo</label>
+                <input type="file" name="logo" accept="image/*" class="form-control" required>
+            </div>
+
+            <!-- Create Button -->
+            <button class="btn btn-success w-100 mt-3">Generate Certificate</button>
+        </form>
+
+    </div>
+
+
+
+    <!-- Certificate List -->
+    <div class="card-panel p-4">
+        <h3 class="mb-4">All Certificates</h3>
+
+        <table class="table-dark-theme">
+            <thead>
+                <tr>
+                    <th>ID</th>
+                    <th>Certificate</th>
+                    <th>Course</th>
+                    <th>Issued</th>
+                    <th>Expiry</th>
+                    <th>PDF</th>
+                    <th>Actions</th>
+                </tr>
+            </thead>
+
+            <tbody>
+                {% for cert in certificates %}
+                <tr>
+                    <td>{{ cert.id }}</td>
+                    <td>{{ cert.name }}</td>
+                    <td>{{ cert.course.title }}</td>
+                    <td>{{ cert.issued_on }}</td>
+                    <td>{{ cert.expiry_date or '—' }}</td>
+
+                    <td>
+                        <a href="{{ cert.document_url }}" target="_blank" class="btn-info-theme btn-sm">
+                            View
+                        </a>
+                    </td>
+
+                    <td class="d-flex gap-2">
+
+                        <!-- Edit Button -->
+                        <button class="btn-info-theme btn-sm"
+                                data-bs-toggle="modal"
+                                data-bs-target="#editCert{{ cert.id }}">
+                            Edit
+                        </button>
+
+                        <!-- Delete -->
+                        <form method="POST" action="{{ url_for('delete_certificate', cert_id=cert.id) }}">
+                            <button class="btn-danger-theme btn-sm"
+                                    onclick="return confirm('Delete certificate?');">
+                                Delete
+                            </button>
+                        </form>
+
+                    </td>
+                </tr>
+
+
+                <!-- Edit Certificate Modal -->
+                <div class="modal fade" id="editCert{{ cert.id }}" tabindex="-1">
+                    <div class="modal-dialog">
+                        <div class="modal-content card-panel">
+
+                            <form method="POST" enctype="multipart/form-data" action="/certificate/update/{{ cert.id }}">
+
+                                <div class="modal-header">
+                                    <h5 class="modal-title">Edit Certificate #{{ cert.id }}</h5>
+                                    <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal"></button>
+                                </div>
+
+                                <div class="modal-body">
+
+                                    <div class="mb-3">
+                                        <label>Certificate Name</label>
+                                        <input type="text" name="name" class="form-control"
+                                               value="{{ cert.name }}" required>
+                                    </div>
+
+                                    <div class="mb-3">
+                                        <label>Description</label>
+                                        <textarea name="description" class="form-control" rows="3">{{ cert.description }}</textarea>
+                                    </div>
+
+                                    <div class="mb-3">
+                                        <label>Issued On</label>
+                                        <input type="date" name="issued_on" class="form-control" value="{{ cert.issued_on }}" required>
+                                    </div>
+
+                                    <div class="mb-3">
+                                        <label>Expiry Date</label>
+                                        <input type="date" name="expiry_date" class="form-control"
+                                               value="{{ cert.expiry_date }}">
+                                    </div>
+
+                                    <div class="mb-3">
+                                        <label>Replace Logo (optional)</label>
+                                        <input type="file" name="logo" accept="image/*" class="form-control">
+                                    </div>
+
+                                </div>
+
+                                <div class="modal-footer">
+                                    <button class="btn-theme">Save Changes</button>
+                                    <button type="button" class="btn btn-outline-secondary" data-bs-dismiss="modal">Cancel</button>
+                                </div>
+
+                            </form>
+
+                        </div>
+                    </div>
+                </div>
+
+                {% endfor %}
+            </tbody>
+        </table>
+    </div>
+
+</div>
+
+{% endblock %}

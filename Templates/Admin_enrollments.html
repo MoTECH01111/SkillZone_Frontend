@@ -1,0 +1,297 @@
+{% extends "base.html" %}
+{% block title %}Admin Enrollments - SkillZONE{% endblock %}
+
+{% block content %}
+
+<style>
+  .enrollments-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 1.5rem;
+  }
+
+  .enrollment-table {
+    width: 100%;
+    border-collapse: collapse;
+    background: #000;
+    color: #fff;
+    border-radius: 12px;
+    overflow: hidden;
+  }
+
+  .enrollment-table thead {
+    background: #111;
+  }
+
+  .enrollment-table th,
+  .enrollment-table td {
+    padding: 12px 10px;
+    border-bottom: 1px solid #222;
+    font-size: 0.95rem;
+  }
+
+  .enrollment-table tr:nth-child(even) {
+    background: #0d0d0d;
+  }
+
+  .enrollment-table tr:hover {
+    background: #181818;
+    transition: 0.2s;
+  }
+
+  .status-badge {
+    display: inline-block;
+    padding: 4px 10px;
+    border-radius: 999px;
+    font-size: 0.8rem;
+    font-weight: 600;
+    text-transform: uppercase;
+    letter-spacing: 0.05em;
+  }
+
+  .status-active {
+    border: 1px solid #00eaff;
+    color: #00eaff;
+  }
+
+  .status-completed {
+    border: 1px solid #3cff3c;
+    color: #3cff3c;
+  }
+
+  .status-dropped {
+    border: 1px solid #ff4d4d;
+    color: #ff4d4d;
+  }
+
+  .btn-theme {
+    background: #000;
+    border: 1px solid #fff;
+    color: #fff;
+    border-radius: 10px;
+    padding: 8px 14px;
+    font-weight: 600;
+    font-size: 0.9rem;
+  }
+
+  .btn-theme:hover {
+    background: #fff;
+    color: #000;
+  }
+
+  .btn-info-theme {
+    background: #000;
+    border: 1px solid #00eaff;
+    color: #00eaff;
+    border-radius: 10px;
+    padding: 6px 12px;
+    font-weight: 600;
+    font-size: 0.85rem;
+  }
+
+  .btn-info-theme:hover {
+    background: #00eaff;
+    color: #000;
+  }
+
+  .btn-danger-theme {
+    background: #000;
+    border: 1px solid #ff4d4d;
+    color: #ff4d4d;
+    border-radius: 10px;
+    padding: 6px 12px;
+    font-weight: 600;
+    font-size: 0.85rem;
+  }
+
+  .btn-danger-theme:hover {
+    background: #ff4d4d;
+    color: #000;
+  }
+
+  .pill-label {
+    font-size: 0.75rem;
+    text-transform: uppercase;
+    letter-spacing: 0.08em;
+    color: #bbbbbb;
+  }
+</style>
+
+<div class="enrollments-header">
+  <h2 class="section-title">Manage Enrollments</h2>
+  <a href="{{ url_for('admin_dashboard') }}" class="btn-theme">
+    ← Back to Admin Dashboard
+  </a>
+</div>
+
+<div class="card-panel mb-4">
+  <div class="d-flex justify-content-between align-items-center mb-3">
+    <div>
+      <span class="pill-label">Total Enrollments</span><br>
+      <span style="font-size: 1.4rem; font-weight: 700;">
+        {{ enrollments|length }}
+      </span>
+    </div>
+    <div class="text-end">
+      <span class="pill-label">Courses</span><br>
+      <span style="font-size: 1.4rem; font-weight: 700;">
+        {{ courses|length }}
+      </span>
+    </div>
+  </div>
+
+  <div class="table-responsive">
+    <table class="enrollment-table">
+      <thead>
+        <tr>
+          <th>ID</th>
+          <th>Employee</th>
+          <th>Course</th>
+          <th>Status</th>
+          <th>Progress</th>
+          <th>Completed On</th>
+          <th style="width: 190px;">Actions</th>
+        </tr>
+      </thead>
+      <tbody>
+        {% for e in enrollments %}
+        <tr>
+          <td>{{ e.id }}</td>
+          <td>
+            <strong>
+              {% if e.employee %}
+                {{ e.employee.first_name }} {{ e.employee.last_name }}
+              {% else %}
+                Unknown
+              {% endif %}
+            </strong><br>
+            <small class="text-muted">
+              {% if e.employee %}{{ e.employee.email }}{% endif %}
+            </small>
+          </td>
+          <td>
+            {% if e.course %}
+              <strong>{{ e.course.title }}</strong><br>
+              <small class="text-muted">{{ e.course.description }}</small>
+            {% else %}
+              <span class="text-muted">No course</span>
+            {% endif %}
+          </td>
+          <td>
+            {% set status = e.status or 'active' %}
+            <span class="status-badge
+              {% if status == 'completed' %}status-completed
+              {% elif status == 'dropped' %}status-dropped
+              {% else %}status-active{% endif %}
+            ">
+              {{ status }}
+            </span>
+          </td>
+          <td>
+            {% if e.progress is defined and e.progress is not none %}
+              {{ e.progress }}%
+            {% else %}
+              <span class="text-muted">—</span>
+            {% endif %}
+          </td>
+          <td>
+            {% if e.completed_on %}
+              {{ e.completed_on }}
+            {% else %}
+              <span class="text-muted">—</span>
+            {% endif %}
+          </td>
+          <td>
+            <!-- Edit btn -->
+            <button class="btn-info-theme mb-1"
+                    data-bs-toggle="modal"
+                    data-bs-target="#editEnrollment{{ e.id }}">
+              Edit
+            </button>
+
+            <!-- Unenroll btn -->
+            <form method="POST"
+                  action="{{ url_for('unenroll', enrollment_id=e.id) }}"
+                  style="display:inline;">
+              <button class="btn-danger-theme mb-1"
+                      onclick="return confirm('Unenroll this employee from the course?');">
+                Unenroll
+              </button>
+            </form>
+          </td>
+        </tr>
+
+        <!-- Edit Enrollment Modal -->
+        <div class="modal fade" id="editEnrollment{{ e.id }}" tabindex="-1">
+          <div class="modal-dialog">
+            <div class="modal-content card-panel">
+
+              <div class="modal-header">
+                <h5 class="modal-title">
+                  Edit Enrollment #{{ e.id }}
+                </h5>
+                <button type="button"
+                        class="btn-close btn-close-white"
+                        data-bs-dismiss="modal"></button>
+              </div>
+
+              <form method="POST"
+                    action="{{ url_for('admin_edit_enrollment', enrollment_id=e.id) }}">
+                <div class="modal-body">
+
+                  <div class="mb-3">
+                    <label class="form-label">Employee</label>
+                    <p class="mb-0">
+                      {% if e.employee %}
+                        <strong>{{ e.employee.first_name }} {{ e.employee.last_name }}</strong><br>
+                        <small class="text-muted">{{ e.employee.email }}</small>
+                      {% else %}
+                        <span class="text-muted">Unknown employee</span>
+                      {% endif %}
+                    </p>
+                  </div>
+
+                  <div class="mb-3">
+                    <label class="form-label">Course</label>
+                    <select name="course_id" class="form-control">
+                      {% for c in courses %}
+                        <option value="{{ c.id }}"
+                          {% if e.course and c.id == e.course.id %}selected{% endif %}>
+                          {{ c.title }}
+                        </option>
+                      {% endfor %}
+                    </select>
+                  </div>
+
+                  <div class="mb-3">
+                    <label class="form-label">Status</label>
+                    {% set status_val = e.status or 'active' %}
+                    <select name="status" class="form-control">
+                      <option value="active" {% if status_val == 'active' %}selected{% endif %}>active</option>
+                      <option value="completed" {% if status_val == 'completed' %}selected{% endif %}>completed</option>
+                      <option value="dropped" {% if status_val == 'dropped' %}selected{% endif %}>dropped</option>
+                    </select>
+                  </div>
+
+                </div>
+
+                <div class="modal-footer">
+                  <button type="submit" class="btn-theme">Save Changes</button>
+                  <button type="button" class="btn btn-outline-secondary" data-bs-dismiss="modal">
+                    Cancel
+                  </button>
+                </div>
+              </form>
+
+            </div>
+          </div>
+        </div>
+
+        {% endfor %}
+      </tbody>
+    </table>
+  </div>
+</div>
+
+{% endblock %}

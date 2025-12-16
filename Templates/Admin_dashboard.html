@@ -1,0 +1,95 @@
+{% extends "base.html" %}
+{% block title %}Admin Dashboard - SkillZONE{% endblock %}
+
+{% block content %}
+
+<style>
+    .admin-card {
+        background: #111;
+        border: 2px solid #fff;
+        border-radius: 14px;
+        padding: 25px;
+        text-align: center;
+        box-shadow: 0 0 12px rgba(255,255,255,0.12);
+        color: white;
+        transition: 0.25s ease;
+    }
+
+    .admin-card:hover {
+        transform: translateY(-4px);
+        box-shadow: 0 0 18px rgba(255,255,255,0.25);
+    }
+
+    .admin-card h4 {
+        font-family: "Orbitron";
+        font-weight: 700;
+        margin-bottom: 8px;
+        font-size: 1.3rem;
+    }
+
+    .admin-card p {
+        opacity: 0.8;
+        font-size: 0.9rem;
+    }
+
+    .admin-btn {
+        background: #000;
+        border: 2px solid #fff;
+        color: #fff;
+        border-radius: 10px;
+        padding: 10px 22px;
+        font-family: "Orbitron";
+        font-weight: 600;
+        width: 100%;
+        transition: 0.25s ease;
+    }
+
+    .admin-btn:hover {
+        background: #111;
+        box-shadow: 0 0 12px rgba(255,255,255,0.4);
+    }
+</style>
+
+<h2 class="page-title">Admin Dashboard</h2>
+
+<div class="row g-4">
+
+    <!-- Manage Courses -->
+    <div class="col-md-6 col-lg-3">
+        <div class="admin-card">
+            <h4>Manage Courses</h4>
+            <p>Create, update, and delete course content.</p>
+            <a href="{{ url_for('manage_courses') }}" class="btn admin-btn">Open</a>
+        </div>
+    </div>
+
+    <!-- Manage Employees -->
+    <div class="col-md-6 col-lg-3">
+        <div class="admin-card">
+            <h4>Employees</h4>
+            <p>View and manage employee accounts.</p>
+            <a href="{{ url_for('manage_employees') }}" class="btn admin-btn">Open</a>
+        </div>
+    </div>
+
+    <!-- Manage Enrollments -->
+    <div class="col-md-6 col-lg-3">
+        <div class="admin-card">
+            <h4>Enrollments</h4>
+            <p>Monitor, edit, or remove employee course enrollments.</p>
+            <a href="{{ url_for('admin_enrollments') }}" class="btn admin-btn">Open</a>
+        </div>
+    </div>
+
+    <!-- Manage Certificates -->
+    <div class="col-md-6 col-lg-3">
+        <div class="admin-card">
+            <h4>Certificates</h4>
+            <p>Create, View and Edit Certificates</p>
+            <a href="{{ url_for('admin_certificates') }}" class="btn admin-btn">Open</a>
+        </div>
+    </div>
+
+</div>
+
+{% endblock %}
