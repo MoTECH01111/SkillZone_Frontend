@@ -1,0 +1,205 @@
+body {
+      font-family: 'Orbitron', sans-serif;
+      background: #000000; /* Pure black */
+      color: #ffffff;      /* Pure white */
+      min-height: 100vh;
+      overflow-x: hidden;
+    }
+
+    .navbar {
+      background-color: #000000;
+      border-bottom: 1px solid #ffffff;
+    }
+
+    .navbar-brand, .nav-link {
+      color: #ffffff !important;
+      font-weight: 600;
+    }
+      .hero-image {
+      width: 100%;
+      max-height: 65vh;       
+      object-fit: cover;       
+      object-position: center; 
+      border-radius: 0px;
+      image-rendering: auto;   
+      filter: none;            
+    }
+
+    .hero-section {
+      position: relative;
+      text-align: center;
+    }
+
+    .hero-text {
+      position: absolute;
+      bottom: 50px;
+      left: 50%;
+      transform: translateX(-50%);
+      background: rgba(0,0,0,0.7);
+      padding: 20px 40px;
+      border-radius: 0px; 
+      color: white;
+      border: 1px solid white;
+    }
+
+
+    .feature-card {
+      background: #111111;
+      border: 2px solid #ffffff;
+      border-radius: 0px; 
+      padding: 35px;
+      text-align: center;
+      width: 80%;
+      margin: auto;
+      color: #ffffff;
+      box-shadow: 0 0 12px rgba(255,255,255,0.15);
+    }
+
+    .feature-card h4 {
+      font-weight: 700;
+      margin-bottom: 10px;
+      color: #ffffff;
+    }
+
+    .feature-card p {
+      font-size: 1rem;
+      opacity: 0.9;
+    }
+
+    h2.section-title {
+      font-size: 2rem;
+      color: #ffffff;
+      font-weight: bold;
+      text-align: center;
+      margin-bottom: 30px;
+    }
+
+    .lead {
+      color: white;
+      opacity: 0.85;
+      text-shadow: 0 1px 3px rgba(255,255,255,0.1);
+    }
+    .carousel-control-prev-icon,
+    .carousel-control-next-icon {
+      filter: invert(1); 
+    }
+    footer {
+      background: #000000;
+      color: white;
+      border-top: 1px solid white;
+      margin-top: 60px;
+    }
+
+ body {
+      margin: 0;
+      padding: 0;
+      background: #000;
+      color: #fff;
+      font-family: "Orbitron", sans-serif;
+      min-height: 100vh;
+      display: flex;
+      flex-direction: column;
+    }
+
+    /* HEADER */
+    nav.navbar-custom {
+      width: 100%;
+      background: #000;
+      padding: 18px 0;
+      border-bottom: 1px solid #333;
+      font-family: "Orbitron", sans-serif;
+    }
+
+    .navbar-brand-custom {
+      color: #fff;
+      font-size: 1.6rem;
+      font-weight: 700;
+      text-decoration: none;
+      letter-spacing: 1px;
+    }
+
+    .navbar-custom a.nav-link-custom {
+      color: #fff;
+      margin-left: 25px;
+      text-decoration: none;
+      font-weight: 600;
+    }
+
+    .register-wrapper {
+      flex: 1;
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      padding: 40px 20px;
+    }
+
+    .register-card {
+      background: #111;
+      border: 1px solid #777;
+      border-radius: 10px;
+      padding: 35px;
+      width: 650px;
+      box-shadow: 0 0 18px rgba(255, 255, 255, 0.08);
+    }
+
+    .register-card h2 {
+      font-weight: 700;
+      text-align: center;
+      font-size: 1.8rem;
+      margin-bottom: 25px;
+    }
+
+    label {
+      color: #fff;
+      font-size: .9rem;
+      margin-top: 10px;
+    }
+
+    .form-control,
+    .form-select {
+      background: #000;
+      border: 1px solid #fff;
+      border-radius: 4px;
+      color: #fff;
+    }
+
+    .form-control::placeholder {
+      color: #bbb;
+    }
+
+    .btn-register {
+      width: 100%;
+      background: #fff;
+      color: #000;
+      font-weight: 700;
+      border-radius: 4px;
+      padding: 10px;
+      margin-top: 20px;
+    }
+
+    .btn-register:hover {
+      background: #bbb;
+    }
+
+    .back-link {
+      color: #fff;
+      text-decoration: none;
+      display: block;
+      text-align: center;
+      margin-top: 20px;
+      font-size: .9rem;
+    }
+
+    .back-link:hover {
+      text-decoration: underline;
+    }
+
+    footer {
+      width: 100%;
+      background: #000;
+      color: #fff;
+      padding: 15px 0;
+      text-align: center;
+      border-top: 1px solid #333;
+      font-size: .9rem;
+    }
