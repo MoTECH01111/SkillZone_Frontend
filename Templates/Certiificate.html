@@ -3,7 +3,6 @@
 {% block title %}My Certificates - SkillZONE{% endblock %}
 
 {% block content %}
-
 <style>
     .cert-card {
         background: #000;
@@ -39,15 +38,11 @@
 </style>
 
 <h2 class="section-title mb-4">My Certificates</h2>
-
 {% if certificates and certificates|length > 0 %}
-
     {% for cert in certificates %}
 
     <div class="cert-card">
-
         <h4>{{ cert.name }}</h4>
-
         <p class="text-muted mb-2">
             Course ID: {{ cert.course_id }}  
             <br>
@@ -84,7 +79,6 @@
             </div>
         </div>
     </div>
-
     {% endfor %}
 
 {% else %}

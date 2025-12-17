@@ -1,7 +1,6 @@
 {% extends "base.html" %}
 
 {% block content %}
-
 <style>
     .profile-card {
         background: #111;
@@ -59,9 +58,7 @@
 
 <div class="container py-5">
     <h1 class="section-title mb-4">My Profile</h1>
-
     <form method="POST" action="/employee/profile" class="profile-card">
-
         <div class="row">
             <div class="col-md-6 mb-3">
                 <label>First Name</label>
@@ -83,11 +80,9 @@
         </div>
 
         <div class="row">
-
             <!-- Position Locked for regular employees -->
             <div class="col-md-6 mb-3">
                 <label>Position</label>
-
                 {% if session.get('employee').admin %}
                     <!-- Admin can edit -->
                     <input type="text" name="position" class="form-control"
@@ -120,9 +115,7 @@
                 <option {% if employee.gender == "Other" %}selected{% endif %}>Other</option>
             </select>
         </div>
-
         <button class="btn-save" type="submit">Save Changes</button>
     </form>
 </div>
-
 {% endblock %}
