@@ -669,22 +669,25 @@ def delete_certificate(cert_id):
 @app.route("/admin/certificates/create", methods=["POST"])
 def create_certificate():
     admin = get_current_employee()
-    if not admin or not admin.get("admin"): # Authorisation check
+
+    # Authorisation check
+    if not admin or not admin.get("admin"):
         return redirect(url_for("dashboard"))
 
-    name = (request.form.get("name") or "").strip()    # Normalises the name
-    description = (request.form.get("description") or "").strip() # Normalises the description
+    # Safely read form data
+    name = (request.form.get("name") or "").strip()
+    description = (request.form.get("description") or "").strip()
     issued_on = request.form.get("issued_on")
     expiry_date = request.form.get("expiry_date")
     course_id = request.form.get("course_id")
     logo = request.files.get("logo")
 
     # Validation
-    if not name or not description or not issued_on or not expiry_date or not course_id:
+    if not all([name, description, issued_on, expiry_date, course_id]):
         flash("All fields are required.", "danger")
         return redirect(url_for("admin_certificates"))
 
-    # Create PDF using PLATYPUS 
+    # Create PDF using ReportLab
     pdf_buffer = io.BytesIO()
     doc = SimpleDocTemplate(
         pdf_buffer,
@@ -696,6 +699,7 @@ def create_certificate():
     )
 
     styles = getSampleStyleSheet()
+
     title_style = ParagraphStyle(
         name="Title",
         parent=styles["Heading1"],
@@ -720,23 +724,22 @@ def create_certificate():
         alignment=TA_CENTER,
         leading=16
     )
+
     content = []
+
+    #logo
     if logo and logo.filename:
         try:
             logo.seek(0)
-
-            # Wrap Image creation too
             img = Image(logo, width=120, height=120)
             content.append(img)
             content.append(Spacer(1, 20))
         except Exception:
-            # For testing purposes
-            pass
+            pass  # Ignore logo errors for testing
 
     content.append(Paragraph(name, title_style))
     content.append(Paragraph(description, desc_style))
 
-    # Footer info
     footer_html = f"""
     Issued by: {admin['first_name']} {admin['last_name']}<br/>
     Issued On: {issued_on}<br/>
@@ -744,7 +747,7 @@ def create_certificate():
     """
     content.append(Paragraph(footer_html, footer_style))
 
-    # Create and Build the PDF
+    # Build PDF
     doc.build(content)
     pdf_buffer.seek(0)
 
@@ -754,29 +757,37 @@ def create_certificate():
         "certificate[description]": description,
         "certificate[issued_on]": issued_on,
         "certificate[expiry_date]": expiry_date,
-        "certificate[employee_id]": request.form["employee_id"],
+        "certificate[employee_id]": admin["id"], 
         "certificate[course_id]": course_id,
     }
+
     files = {
-        "certificate[document]": ("certificate.pdf", pdf_buffer, "application/pdf")
+        "certificate[document]": (
+            "certificate.pdf",
+            pdf_buffer,
+            "application/pdf"
+        )
     }
+
     res = api_post("certificates", data, files=files)
+
     if res and res.status_code == 201:
         flash("Certificate created successfully!", "success")
     else:
         error_msg = "Failed to create certificate."
-        if res is not None:
+        if res:
             try:
                 body = res.json()
                 if body.get("errors"):
                     error_msg = ", ".join(body["errors"])
                 else:
                     error_msg = f"Failed (status {res.status_code})."
-            except:
+            except Exception:
                 pass
 
         flash(error_msg, "danger")
     return redirect(url_for("admin_certificates"))
+
 
 # Logout user from session 
 @app.route("/logout")
